@@ -9,5 +9,4 @@ public class CoderecognizerApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(CoderecognizerApplication.class, args);
 	}
-
 }

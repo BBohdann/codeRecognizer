@@ -9,6 +9,7 @@ import java.util.List;
 
 @Component
 public class ScanInfoMapper {
+
     public List<ScanInfo> toScanInfoEntities(Collection<ScanInfoDto> dtos) {
         return dtos.stream()
                 .map(this::toScanInfoEntity)
