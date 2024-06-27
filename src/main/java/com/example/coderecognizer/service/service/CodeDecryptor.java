@@ -1,58 +1,61 @@
 package com.example.coderecognizer.service.service;
 
-
+import com.example.coderecognizer.service.exeption.InvalidImageFormatException;
 import com.google.zxing.*;
+import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.oned.EAN13Reader;
+import com.google.zxing.oned.EAN8Reader;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class CodeDecryptor {
+    private final ImageFormatValidator formatRecognizer;
 
-    public String decryptCode(MultipartFile file) {
+    public String decryptCode(MultipartFile file) throws InvalidImageFormatException {
         try {
-            BufferedImage image = ImageIO.read(file.getInputStream());
-            if (image == null) {
-                return "Invalid image format";
-            }
-
-            // Визначення типу коду
+            if(!formatRecognizer.isValidImage(file))
+                throw new InvalidImageFormatException("InvalidImageFormat");
+            BufferedImage image = ImageIO.read(new ByteArrayInputStream(file.getBytes()));
             Map<DecodeHintType, Object> hints = new EnumMap<>(DecodeHintType.class);
             hints.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
             hints.put(DecodeHintType.POSSIBLE_FORMATS, EnumSet.allOf(BarcodeFormat.class));
-
             MultiFormatReader reader = new MultiFormatReader();
             BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(new BufferedImageLuminanceSource(image)));
             Result result = reader.decode(binaryBitmap, hints);
             BarcodeFormat barcodeFormat = result.getBarcodeFormat();
 
-            // Розшифрування коду
             switch (barcodeFormat) {
                 case QR_CODE:
                     return "QR Code: " + result.getText();
+                case EAN_8:
+                    EAN8Reader ean8Reader = new EAN8Reader();
+                    result = ean8Reader.decode(binaryBitmap);
+                    return "EAN-8: " + result.getText();
                 case EAN_13:
                     EAN13Reader ean13Reader = new EAN13Reader();
                     result = ean13Reader.decode(new BinaryBitmap(new HybridBinarizer(new BufferedImageLuminanceSource(image))));
                     return "EAN-13: " + result.getText();
                 case CODE_128:
-                    // Розшифрування Code 128 ви можете реалізувати за необхідністю
                     return "Code 128: " + result.getText();
                 default:
-                    return "Unsupported code format";
+                    throw new RuntimeException("Unsupported Code Format");
             }
         } catch (IOException | NotFoundException e) {
             e.printStackTrace();
-            return "Error decoding code";
+            throw new RuntimeException("Erorr decoding this code!");
         } catch (FormatException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Bad image format");
         }
     }
 }

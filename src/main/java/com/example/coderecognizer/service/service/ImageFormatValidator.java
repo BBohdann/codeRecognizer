@@ -1,5 +1,7 @@
 package com.example.coderecognizer.service.service;
 
+import com.example.coderecognizer.service.exeption.EmptyImageException;
+import com.example.coderecognizer.service.exeption.InvalidImageFormatException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,7 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Service
-public class ImageFormatRecognizer {
+public class ImageFormatValidator {
     private final List<String> validFormats = Arrays.asList("JPEG", "PNG", "GIF");
 
     private String recognizeFormat(MultipartFile file) {
@@ -19,29 +21,27 @@ public class ImageFormatRecognizer {
             ByteArrayInputStream bis = new ByteArrayInputStream(file.getBytes());
             BufferedImage image = ImageIO.read(bis);
             return getImageFormat(image);
-        } catch (IOException e) {
+        } catch (IOException | EmptyImageException | InvalidImageFormatException e) {
             e.printStackTrace();
         }
         return "unknown image";
     }
 
-    private String getImageFormat(BufferedImage image) {
+    private String getImageFormat(BufferedImage image) throws EmptyImageException, InvalidImageFormatException {
         if (image == null) {
-            return "empty image!";
-            //todo custom exeption on empty image
+            throw new EmptyImageException();
         }
-        String formatName = "unknown format";
-        try {
-            formatName = ImageIO.getImageReadersByMIMEType("image/jpeg").next().getOriginatingProvider().getFormatNames()[0];
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        String formatName = ImageIO.getImageReadersByMIMEType("image/jpeg").next().getOriginatingProvider().getFormatNames()[0];
 
+        if (!formatName.equals("JPEG") && !formatName.equals("PNG") && !formatName.equals("GIF")) {
+            throw new InvalidImageFormatException(formatName);
+        }
         return formatName;
     }
 
     public boolean isValidImage(MultipartFile file) {
-        String format = recognizeFormat(file);
-        return validFormats.contains(format.toUpperCase());
+        return validFormats.contains(recognizeFormat(file).toUpperCase());
     }
 }
+
+

@@ -22,6 +22,7 @@ public class ScanInfoMapper {
         entity.setProductCode(dto.getProductCode());
         entity.setScanDateTime(dto.getScanDateTime());
         entity.setSuccess(dto.getSuccess());
+        entity.setValueType(dto.getValueType());
         return entity;
     }
 
@@ -35,6 +36,7 @@ public class ScanInfoMapper {
         dto.setId(entity.getId());
         dto.setProductCode(entity.getProductCode());
         dto.setScanDateTime(entity.getScanDateTime());
+        dto.setValueType(entity.getValueType());
         dto.setSuccess(entity.getSuccess());
         return dto;
     }

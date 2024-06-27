@@ -3,7 +3,6 @@ package com.example.coderecognizer.service.mapper;
 import com.example.coderecognizer.data.entity.ProductCode;
 import com.example.coderecognizer.service.dto.ProductCodeDto;
 import org.springframework.stereotype.Component;
-
 import java.util.Collection;
 import java.util.List;
 
@@ -20,6 +19,7 @@ public class ProductCodeMapper {
         entity.setId(dto.getId());
         entity.setCodeType(dto.getCodeType());
         entity.setCodeValue(dto.getCodeValue());
+        entity.setFileName(dto.getFileName());
         return entity;
     }
 

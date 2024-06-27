@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Result</title>
+</head>
+<body>
+<h1>Decryption Result</h1>
+<p th:text="${result}"></p> <!-- Виведення результату розшифровки -->
+
+<form id="openFoodFactsForm" action="/code/checkProduct" method="post">
+    <input type="hidden" name="codeInfo" th:value="${result}">
+    <button type="submit" th:if="${showOpenFoodFactsButton}">Search product on Open Food Facts</button>
+</form>
+
+</body>
+</html>
