@@ -3,16 +3,13 @@ package com.example.coderecognizer.service.mapper;
 import com.example.coderecognizer.data.entity.ProductCode;
 import com.example.coderecognizer.service.dto.ProductCodeDto;
 import org.springframework.stereotype.Component;
+
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class ProductCodeMapper {
-    public List<ProductCode> toProductCodeEntities(Collection<ProductCodeDto> dtos) {
-        return dtos.stream()
-                .map(this::toProductCodeEntity)
-                .toList();
-    }
 
     public ProductCode toProductCodeEntity(ProductCodeDto dto) {
         ProductCode entity = new ProductCode();
@@ -23,9 +20,10 @@ public class ProductCodeMapper {
         return entity;
     }
 
-    public List<ProductCodeDto> toProductCodeDtos(Collection<ProductCode> entities) {
-        return entities.stream()
-                .map(this::toProductCodeDto).toList();
+    public List<ProductCode> toProductCodeEntities(Collection<ProductCodeDto> dtos) {
+        return dtos.stream()
+                .map(this::toProductCodeEntity)
+                .collect(Collectors.toList());
     }
 
     public ProductCodeDto toProductCodeDto(ProductCode entity) {
@@ -34,5 +32,11 @@ public class ProductCodeMapper {
         dto.setCodeType(entity.getCodeType());
         dto.setCodeValue(entity.getCodeValue());
         return dto;
+    }
+
+    public List<ProductCodeDto> toProductCodeDtos(Collection<ProductCode> entities) {
+        return entities.stream()
+                .map(this::toProductCodeDto)
+                .collect(Collectors.toList());
     }
 }

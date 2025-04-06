@@ -6,15 +6,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class ScanInfoMapper {
-
-    public List<ScanInfo> toScanInfoEntities(Collection<ScanInfoDto> dtos) {
-        return dtos.stream()
-                .map(this::toScanInfoEntity)
-                .toList();
-    }
 
     public ScanInfo toScanInfoEntity(ScanInfoDto dto) {
         ScanInfo entity = new ScanInfo();
@@ -26,9 +21,10 @@ public class ScanInfoMapper {
         return entity;
     }
 
-    public List<ScanInfoDto> toScanInfoDtos(Collection<ScanInfo> entities) {
-        return entities.stream()
-                .map(this::toScanInfoDto).toList();
+    public List<ScanInfo> toScanInfoEntities(Collection<ScanInfoDto> dtos) {
+        return dtos.stream()
+                .map(this::toScanInfoEntity)
+                .collect(Collectors.toList());
     }
 
     public ScanInfoDto toScanInfoDto(ScanInfo entity) {
@@ -39,5 +35,11 @@ public class ScanInfoMapper {
         dto.setValueType(entity.getValueType());
         dto.setSuccess(entity.getSuccess());
         return dto;
+    }
+
+    public List<ScanInfoDto> toScanInfoDtos(Collection<ScanInfo> entities) {
+        return entities.stream()
+                .map(this::toScanInfoDto)
+                .collect(Collectors.toList());
     }
 }

@@ -10,19 +10,37 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * Service for managing product code data.
+ * Provides functionality to list and save product code entries.
+ */
 @Service
 @RequiredArgsConstructor
 public class ProductCodeService {
-    private final ProductCodeRepository productRepository;
-    private final ProductCodeMapper productMapper;
 
+    private final ProductCodeRepository repository;
+    private final ProductCodeMapper mapper;
+
+    /**
+     * Retrieves a list of all product codes from the database.
+     *
+     * @return list of product code DTOs
+     */
+    @Transactional(readOnly = true)
     public List<ProductCodeDto> listAll() {
-        return productMapper.toProductCodeDtos(productRepository.findAll());
+        return mapper.toProductCodeDtos(repository.findAll());
     }
 
+    /**
+     * Saves a new product code entry to the database.
+     *
+     * @param dto the product code DTO to be saved
+     * @return the saved product code DTO
+     */
     @Transactional
-    public ProductCodeDto save(ProductCodeDto product) {
-        ProductCode entity = productMapper.toProductCodeEntity(product);
-        return productMapper.toProductCodeDto(productRepository.save(entity));
+    public ProductCodeDto save(ProductCodeDto dto) {
+        ProductCode entity = mapper.toProductCodeEntity(dto);
+        ProductCode saved = repository.save(entity);
+        return mapper.toProductCodeDto(saved);
     }
 }

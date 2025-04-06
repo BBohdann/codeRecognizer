@@ -12,6 +12,5 @@ public class ProductCodeDto {
         private String codeType;
         private String codeValue;
         private String fileName;
-//        private ValueType codeValueType;
         private List<ScanInfo> scanInfo;
 }
