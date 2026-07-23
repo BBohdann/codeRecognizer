@@ -2,41 +2,22 @@ package com.example.coderecognizer.service.mapper;
 
 import com.example.coderecognizer.data.entity.ProductCode;
 import com.example.coderecognizer.service.dto.ProductCodeDto;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
-@Component
-public class ProductCodeMapper {
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public interface ProductCodeMapper {
 
-    public ProductCode toProductCodeEntity(ProductCodeDto dto) {
-        ProductCode entity = new ProductCode();
-        entity.setId(dto.getId());
-        entity.setCodeType(dto.getCodeType());
-        entity.setCodeValue(dto.getCodeValue());
-        entity.setFileName(dto.getFileName());
-        return entity;
-    }
+    ProductCodeDto toDto(ProductCode entity);
 
-    public List<ProductCode> toProductCodeEntities(Collection<ProductCodeDto> dtos) {
-        return dtos.stream()
-                .map(this::toProductCodeEntity)
-                .collect(Collectors.toList());
-    }
+    @Mapping(target = "scanInfo", ignore = true)
+    ProductCode toEntity(ProductCodeDto dto);
 
-    public ProductCodeDto toProductCodeDto(ProductCode entity) {
-        ProductCodeDto dto = new ProductCodeDto();
-        dto.setId(entity.getId());
-        dto.setCodeType(entity.getCodeType());
-        dto.setCodeValue(entity.getCodeValue());
-        return dto;
-    }
+    List<ProductCodeDto> toDtoList(Collection<ProductCode> entities);
 
-    public List<ProductCodeDto> toProductCodeDtos(Collection<ProductCode> entities) {
-        return entities.stream()
-                .map(this::toProductCodeDto)
-                .collect(Collectors.toList());
-    }
+    List<ProductCode> toEntityList(Collection<ProductCodeDto> dtos);
 }

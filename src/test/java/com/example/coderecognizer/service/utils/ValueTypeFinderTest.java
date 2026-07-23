@@ -1,65 +1,51 @@
 package com.example.coderecognizer.service.utils;
 
-import com.example.coderecognizer.service.exeption.InvalidDecryptionFormatException;
-import org.junit.jupiter.api.BeforeEach;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class ValueTypeFinderTest {
+    private final ValueTypeFinder finder = new ValueTypeFinder(new ObjectMapper());
 
-    private ValueTypeFinder valueTypeFinder;
-
-    @BeforeEach
-    void setUp() {
-        valueTypeFinder = new ValueTypeFinder();
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "http://example.com",
+            "https://example.com/path",
+            "www.example.com",
+            "ftp://files.example.com",
+            "sftp://files.example.com",
+            "ftps://files.example.com",
+            "localhost:8080"
+    })
+    void analyze_UrlLikeValues_ReturnsUrl(String value) {
+        assertThat(finder.analyze(value)).isEqualTo(ValueType.URL);
     }
 
     @Test
-    void analyze_shouldReturnURL_whenValueIsURL() {
-        String url = "https://example.com";
-        assertEquals(ValueType.URL, valueTypeFinder.analyze(url));
+    void analyze_JsonObject_ReturnsJson() {
+        assertThat(finder.analyze("{\"key\":\"value\"}")).isEqualTo(ValueType.JSON);
     }
 
     @Test
-    void analyze_shouldReturnJSON_whenValueIsJson() {
-        String json = "{\"name\":\"Test\",\"value\":123}";
-        assertEquals(ValueType.JSON, valueTypeFinder.analyze(json));
+    void analyze_JsonArray_ReturnsJson() {
+        assertThat(finder.analyze("[1, 2, 3]")).isEqualTo(ValueType.JSON);
     }
 
     @Test
-    void analyze_shouldReturnTEXT_whenValueIsPlainText() {
-        String text = "just some plain text";
-        assertEquals(ValueType.TEXT, valueTypeFinder.analyze(text));
+    void analyze_MalformedJsonLookingValue_ReturnsText() {
+        assertThat(finder.analyze("{not valid json}")).isEqualTo(ValueType.TEXT);
     }
 
     @Test
-    void extractCodeType_shouldReturnTypePart_whenDecryptedIsValid() {
-        String decrypted = "QR Code: 123456";
-        String result = valueTypeFinder.extractCodeType(decrypted);
-        assertEquals("QR Code", result);
+    void analyze_PlainText_ReturnsText() {
+        assertThat(finder.analyze("just some scanned text")).isEqualTo(ValueType.TEXT);
     }
 
     @Test
-    void extractCodeType_shouldThrowException_whenFormatIsInvalid() {
-        String invalid = "invalid_format_string";
-
-        assertThrows(InvalidDecryptionFormatException.class,
-                () -> valueTypeFinder.extractCodeType(invalid));
-    }
-
-    @Test
-    void extractCodeValue_shouldReturnValuePart_whenDecryptedIsValid() {
-        String decrypted = "QR Code: 123456";
-        String result = valueTypeFinder.extractCodeValue(decrypted);
-        assertEquals("123456", result);
-    }
-
-    @Test
-    void extractCodeValue_shouldThrowException_whenFormatIsInvalid() {
-        String invalid = "invalid_only_code_type";
-
-        assertThrows(InvalidDecryptionFormatException.class,
-                () -> valueTypeFinder.extractCodeValue(invalid));
+    void analyze_UppercaseUrlPrefix_IsCaseInsensitive() {
+        assertThat(finder.analyze("HTTPS://EXAMPLE.COM")).isEqualTo(ValueType.URL);
     }
 }

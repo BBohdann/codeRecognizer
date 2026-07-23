@@ -1,96 +1,57 @@
 package com.example.coderecognizer.service.utils;
 
-import com.example.coderecognizer.service.exeption.InvalidDecryptionFormatException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-/**
- * Utility service for analyzing the structure and type of decoded barcode values.
- * Can classify values as JSON, URL, or plain text, and extract type/value components from a combined string.
- */
 @Slf4j
-@Service
+@Component
 public class ValueTypeFinder {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private static final String[] URL_PREFIXES = {
+            "http://", "https://", "ftp://", "sftp://", "ftps://", "www.", "localhost"
+    };
 
-    /**
-     * Analyzes a given string to determine its value type.
-     *
-     * @param fileValue the decoded value to analyze
-     * @return the detected {@link ValueType}
-     */
-    public ValueType analyze(String fileValue) {
-        log.debug("Analyzing value: {}", fileValue);
+    private final ObjectMapper objectMapper;
 
-        if (isURL(fileValue)) return ValueType.URL;
-        if (isValidJson(fileValue)) return ValueType.JSON;
+    public ValueTypeFinder(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
+    public ValueType analyze(String value) {
+        log.debug("Analyzing value: {}", value);
+
+        if (isUrl(value)) {
+            return ValueType.URL;
+        }
+        if (isValidJson(value)) {
+            return ValueType.JSON;
+        }
         return ValueType.TEXT;
     }
 
-    /**
-     * Determines whether the given string is valid JSON.
-     *
-     * @param value the string to test
-     * @return true if the string is valid JSON
-     */
     private boolean isValidJson(String value) {
+        String trimmed = value.trim();
+        boolean looksLikeJson = (trimmed.startsWith("{") && trimmed.endsWith("}"))
+                || (trimmed.startsWith("[") && trimmed.endsWith("]"));
+        if (!looksLikeJson) {
+            return false;
+        }
         try {
-            objectMapper.readTree(value);
+            objectMapper.readTree(trimmed);
             return true;
         } catch (Exception e) {
             return false;
         }
     }
 
-    /**
-     * Checks whether the given string appears to be a URL.
-     *
-     * @param str the string to check
-     * @return true if the string starts with a known URL prefix
-     */
-    private boolean isURL(String str) {
-        String lower = str.toLowerCase();
-        return lower.startsWith("http://") ||
-                lower.startsWith("https://") ||
-                lower.startsWith("ftp://") ||
-                lower.startsWith("sftp://") ||
-                lower.startsWith("ftps://") ||
-                lower.startsWith("www.") ||
-                lower.startsWith("localhost");
-    }
-
-    /**
-     * Extracts the code value from a formatted decrypted string.
-     * Expects a string in the format "TYPE: VALUE".
-     *
-     * @param decrypted the decrypted string
-     * @return the code value portion
-     * @throws InvalidDecryptionFormatException if the format is invalid
-     */
-    public String extractCodeValue(String decrypted) {
-        String[] parts = decrypted.split(": ", 2);
-        if (parts.length < 2) {
-            throw new InvalidDecryptionFormatException("Invalid decrypted format: " + decrypted);
+    private boolean isUrl(String value) {
+        String lower = value.toLowerCase();
+        for (String prefix : URL_PREFIXES) {
+            if (lower.startsWith(prefix)) {
+                return true;
+            }
         }
-        return parts[1];
-    }
-
-    /**
-     * Extracts the code type from a formatted decrypted string.
-     * Expects a string in the format "TYPE: VALUE".
-     *
-     * @param decrypted the decrypted string
-     * @return the code type portion
-     * @throws InvalidDecryptionFormatException if the format is invalid
-     */
-    public String extractCodeType(String decrypted) {
-        String[] parts = decrypted.split(": ", 2);
-        if (parts.length < 2) {
-            throw new InvalidDecryptionFormatException("Invalid decrypted format: " + decrypted);
-        }
-        return parts[0];
+        return false;
     }
 }

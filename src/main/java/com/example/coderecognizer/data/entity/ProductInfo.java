@@ -1,21 +1,35 @@
 package com.example.coderecognizer.data.entity;
 
-import jakarta.persistence.*;
-import lombok.Data;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
-import java.io.Serializable;
-
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode(of = "id")
 @Entity
-@Data
-@Table(name = "product_info")
+@Table(name = "product_info", uniqueConstraints = @UniqueConstraint(columnNames = "code_value"))
 public class ProductInfo {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(name = "code_value", nullable = false)
     private String codeValue;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "product_data", columnDefinition = "jsonb", nullable = false)
     private String productData;
 

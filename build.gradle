@@ -1,11 +1,11 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.2.5'
-	id 'io.spring.dependency-management' version '1.1.4'
+	id 'org.springframework.boot' version '3.3.0'
+	id 'io.spring.dependency-management' version '1.1.5'
 }
 
 group = 'com.example.coderecognizer'
-version = '0.0.1-SNAPSHOT'
+version = '0.1'
 
 java {
 	sourceCompatibility = '21'
@@ -19,21 +19,29 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+
 	implementation 'org.flywaydb:flyway-core'
+	implementation 'org.flywaydb:flyway-database-postgresql'
 	runtimeOnly 'org.postgresql:postgresql'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+	implementation 'com.google.zxing:core:3.5.3'
+	implementation 'com.google.zxing:javase:3.5.3'
+
+	implementation 'org.mapstruct:mapstruct:1.6.3'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	implementation 'com.google.zxing:core:3.2.1'
-	implementation files('libs/zxing-javase.jar')
+	annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
 
-	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
-	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
-	testImplementation 'org.mockito:mockito-core:5.4.0'
-	testImplementation 'org.mockito:mockito-junit-jupiter:5.4.0'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+test {
+	environment "DB_URL", System.getenv("DB_URL")
+	environment "DB_USERNAME", System.getenv("DB_USERNAME")
+	environment "DB_PASSWORD", System.getenv("DB_PASSWORD")
 }
