@@ -12,10 +12,6 @@ java {
 	sourceCompatibility = '21'
 }
 
-bootJar {
-	archiveFileName = 'app.jar'
-}
-
 repositories {
 	mavenCentral()
 }
@@ -26,30 +22,26 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
-
 	implementation 'org.flywaydb:flyway-core'
 	implementation 'org.flywaydb:flyway-database-postgresql'
-	runtimeOnly 'org.postgresql:postgresql'
-
 	implementation 'com.google.zxing:core:3.5.3'
 	implementation 'com.google.zxing:javase:3.5.3'
-
 	implementation 'org.mapstruct:mapstruct:1.6.3'
 	compileOnly 'org.projectlombok:lombok'
+	runtimeOnly 'org.postgresql:postgresql'
 	annotationProcessor 'org.projectlombok:lombok'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-}
-
-tasks.named('test') {
-	useJUnitPlatform()
+	testImplementation 'com.h2database:h2:2.2.224'
+	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
 }
 
 test {
-	environment "DB_URL", System.getenv("DB_URL")
-	environment "DB_USERNAME", System.getenv("DB_USERNAME")
-	environment "DB_PASSWORD", System.getenv("DB_PASSWORD")
+	useJUnitPlatform()
+	systemProperty 'spring.profiles.active', 'test'
 	finalizedBy jacocoTestReport
 }
 
@@ -63,5 +55,17 @@ jacocoTestReport {
 		xml.required = true
 		html.required = true
 		csv.required = true
+	}
+	afterEvaluate {
+		classDirectories.setFrom(files(classDirectories.files.collect {
+			fileTree(dir: it, exclude: [
+					'**/dto/**',
+					'**/entity/**',
+					'**/exception/**',
+					'**/mapper/**',
+					'**/cfg/**',
+					'**/*Application.class'
+			])
+		}))
 	}
 }
