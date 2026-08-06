@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.3.0'
 	id 'io.spring.dependency-management' version '1.1.5'
+	id 'jacoco'
 }
 
 group = 'com.example.coderecognizer'
@@ -9,6 +10,10 @@ version = '0.1'
 
 java {
 	sourceCompatibility = '21'
+}
+
+bootJar {
+	archiveFileName = 'app.jar'
 }
 
 repositories {
@@ -40,8 +45,23 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
 test {
 	environment "DB_URL", System.getenv("DB_URL")
 	environment "DB_USERNAME", System.getenv("DB_USERNAME")
 	environment "DB_PASSWORD", System.getenv("DB_PASSWORD")
+	finalizedBy jacocoTestReport
+}
+
+jacoco {
+	toolVersion = "0.8.12"
+}
+
+jacocoTestReport {
+	dependsOn test
+	reports {
+		xml.required = true
+		html.required = true
+		csv.required = true
+	}
 }
