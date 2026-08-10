@@ -3,10 +3,7 @@
  
 # CodeRecognizer
  
-CodeRecognizer is a Java application for recognizing and processing barcodes and QR codes.
-The project was built as a pet project to practice backend development with Spring Boot, image processing with ZXing, and REST API design.
- 
-It allows scanning images, validating formats, and handling decoded data, making it useful for automation and data management tasks.
+CodeRecognizer is a REST API service for recognizing and decoding barcodes and QR codes from uploaded images, built with Java and Spring Boot. It validates image formats, extracts and interprets the encoded data via ZXing, and returns structured results — useful for automation and data management tasks.
  
 ---
  
@@ -14,8 +11,9 @@ It allows scanning images, validating formats, and handling decoded data, making
  
 - **Barcode & QR recognition** — detect and decode multiple code types
 - **Image validation** — ensure correct format before processing
-- **Data decryption** — decode and interpret recognized codes
+- **Data decoding** — decode and interpret recognized codes
 - **Modular services** — structured architecture for easy extension
+- **3 REST Endpoints** — documented and testable via Swagger UI
 - **Automated testing** — unit tests run automatically in CI, with coverage tracked via JaCoCo
 - **Containerized** — runs via Docker Compose with a bundled PostgreSQL instance, no manual setup required
 ---
@@ -26,6 +24,8 @@ It allows scanning images, validating formats, and handling decoded data, making
 - **Image Processing:** ZXing (Zebra Crossing)
 - **Database:** PostgreSQL
 - **Migrations:** Flyway
+- **Mapping:** MapStruct
+- **Boilerplate reduction:** Lombok
 - **Testing:** JUnit, Mockito
 - **Containerization:** Docker, Docker Compose
 - **CI/CD:** GitHub Actions
@@ -69,11 +69,10 @@ http://localhost:8080/swagger-ui/index.html
 3. Recognized data is returned via REST API
 ---
  
-# About the Project
+## About the Project
  
-This project was developed as part of self-study to strengthen Java backend skills.
-It focuses on practical application of image recognition, API design, and service modularity, preparing for real-world backend tasks.
+Developed as a self-study project to practice production-style backend patterns — REST API design, image processing integration, automated testing, and containerized deployment — beyond typical CRUD tutorials.
  
-# License
+## License
  
 This project is open-source and available under the MIT License.
